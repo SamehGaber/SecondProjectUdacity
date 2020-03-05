@@ -25,6 +25,7 @@ def create_app(test_config=None):
   def after_request(response):
     response.headers.add('Access-Contro-Allow-Headers','Content-Type ,Authorization')
     response.headers.add('Access-Contro-Allow-Headers','GET, POST ,PATCH , DELETE ,OPTIONS')
+    response.headers.add('Access-Control-Allow-Origin' ,  'http://localhost:3000')
     return response 
 
 
@@ -38,21 +39,22 @@ def create_app(test_config=None):
   def get_greeting():
     return jsonify({'message':'Hello, World!'})
   
-  @app.route('/plays', methods=['GET'])
-  def get_plays():
+  
+  @app.route('/categories', methods=['GET'])
+  def get_categories():
     page = request.args.get('page', 1, type=int)
     start = (page -1) * 10 
     end = start + 10 
-    plays = Category.query.all()
-    formatted_plays = [play.format() for play in plays]
+    categories = Category.query.all()
+    formatted_categories = [Category.format() for category in categories]
 
     return jsonify({
 
       'success ': True ,
-      'plays' : formatted_plays[start:end] ,
-      'total_plays' : len(formatted_plays)
+      'categories' : formatted_categories[start:end] ,
+      'total_categories' : len(formatted_categories)
     })
-
+  
 
   '''
   @TODO: 
@@ -66,6 +68,7 @@ def create_app(test_config=None):
   you should see questions and categories generated,
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
+  '''
   '''
   @app.route('/questions', methods=['GET'])
   def get_questions():
@@ -81,7 +84,8 @@ def create_app(test_config=None):
       'questions' : formatted_questions[start:end] ,
       'total_plays' : len(formatted_questions)
     })
-
+ 
+  '''
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
