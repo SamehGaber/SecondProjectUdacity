@@ -94,6 +94,29 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])
+  def delete_specific_questions(question_id):
+    page = request.args.get('page', 1, type=int)
+    start = (page -1) * 10 
+    end = start + 10 
+    selected_question=Question.query.filter(Question.id == question_id)
+    selected_question.delete()
+    questions = Question.query.all()
+    formatted_questions = [question.format() for question in questions]
+    
+
+    if selected_question is None:
+      abort(404)
+    
+    
+    return jsonify ({
+        'questions' : formatted_questions[start:end] ,
+        'total_plays' : len(formatted_questions),
+        'success': True ,
+        'deleted' : question_id 
+      })
+    
+  
 
   '''
   @TODO: 
@@ -106,6 +129,32 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
 
+  @app.route('/questions', methods=['post'])
+  def create_new_questions():
+    page = request.args.get('page', 1, type=int)
+    start = (page -1) * 10 
+    end = start + 10 
+    body = request.get_json()
+    new_answer= body.get('answer', None)
+    new_category= body.get('category', None)
+    new_difficulty= body.get('difficulty', None)
+    new_question= body.get('question', None)
+    
+    question = Question(answer=new_answer, category=new_category , difficulty=new_difficulty ,question=new_question)
+    question.insert()
+    questions = Question.query.all()
+    formatted_questions = [question.format() for question in questions]
+
+    
+    
+    return jsonify ({
+        'questions' : formatted_questions[start:end] ,
+        'total_plays' : len(formatted_questions),
+        'success': True ,
+        'created' : question.id 
+      })
+    
+
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -116,6 +165,27 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  @app.route('/questions/search', methods=['POST','GET'])
+  def get_searched_questions():
+    page = request.args.get('page', 1, type=int)
+    start = (page -1) * 10 
+    end = start + 10 
+    #search_term = request.form.get('search_term', ' which ') to search for questions containg word which
+    search_term = request.form.get('search_term', ' ')
+    searched_question = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
+    formatted_questions = [question.format() for question in searched_question]
+    
+
+    if searched_question is None:
+      abort(404)
+    
+    
+    return jsonify ({
+        'questions' : formatted_questions[start:end] ,
+        'total_plays' : len(formatted_questions),
+        'success': True ,
+        
+      })
 
   '''
   @TODO: 
@@ -167,13 +237,34 @@ def create_app(test_config=None):
   including 404 and 422. 
   '''
   
-  app.errorhandler(404)
+  @app.errorhandler(404)
   def not_found(error):
     return jsonify({
         "success": False, 
         "error": 404,
         "message": "Not found"
         }), 404
+
+  @app.errorhandler(422)
+  def not_found(error):
+    return jsonify({
+        "success": False, 
+        "error": 422,
+        "message": "Unprocessable Entity"
+        }), 422
+
+
+  @app.errorhandler(405)
+  def not_found(error):
+    return jsonify({
+        "success": False, 
+        "error": 405,
+        "message": "Method not allowed"
+        }), 405
+
+
+
+        
   
 
   return app
