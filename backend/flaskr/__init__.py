@@ -35,6 +35,7 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
+  #dummy end point for testing 
   @app.route("/hello")
   def get_greeting():
     return jsonify({'message':'Hello, World!'})
@@ -46,7 +47,7 @@ def create_app(test_config=None):
     start = (page -1) * 10 
     end = start + 10 
     categories = Category.query.all()
-    formatted_categories = [Category.format() for category in categories]
+    formatted_categories = [category.format() for category in categories]
 
     return jsonify({
 
@@ -69,7 +70,7 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
-  '''
+  
   @app.route('/questions', methods=['GET'])
   def get_questions():
     page = request.args.get('page', 1, type=int)
@@ -85,7 +86,7 @@ def create_app(test_config=None):
       'total_plays' : len(formatted_questions)
     })
  
-  '''
+  
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
@@ -125,6 +126,28 @@ def create_app(test_config=None):
   category to be shown. 
   '''
 
+  @app.route('/categories/<int:category_id>', methods=['GET'])
+  def get_specific_category(category_id):
+    selected_category = Category.query.filter(Category.id == category_id).one_or_none()
+    selected_questions = Question.query.filter(Question.category == category_id)
+    formatted_questions = [question.format() for question in selected_questions]
+
+    if selected_category is None :
+      abort(404)
+    else:
+
+
+     return jsonify({
+
+      'success ': True ,
+      'category' : formatted_questions,
+      'total_plays' : len(formatted_questions)
+      
+     })
+  
+
+
+
 
   '''
   @TODO: 
@@ -144,6 +167,15 @@ def create_app(test_config=None):
   including 404 and 422. 
   '''
   
+  app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+        "success": False, 
+        "error": 404,
+        "message": "Not found"
+        }), 404
+  
+
   return app
 
     
