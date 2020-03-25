@@ -47,12 +47,13 @@ def create_app(test_config=None):
     start = (page -1) * 10 
     end = start + 10 
     categories = Category.query.all()
-    formatted_categories = [category.format() for category in categories]
+    formatted_categories = { category.id:category.type for category in categories }
 
     return jsonify({
 
       'success ': True ,
-      'categories' : formatted_categories[start:end] ,
+      #'categories' : formatted_categories[start:end] ,
+      'categories' : formatted_categories ,
       'total_categories' : len(formatted_categories)
     })
   
@@ -101,13 +102,13 @@ def create_app(test_config=None):
   '''
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_specific_questions(question_id):
-    page = request.args.get('page', 1, type=int)
-    start = (page -1) * 10 
-    end = start + 10 
-    selected_question=Question.query.filter(Question.id == question_id)
+    # page = request.args.get('page', 1, type=int)
+    # start = (page -1) * 10 
+    # end = start + 10 
+    selected_question=Question.query.get(question_id)
     selected_question.delete()
     questions = Question.query.all()
-    formatted_questions = [question.format() for question in questions]
+    # formatted_questions = [question.format() for question in questions]
     
 
     if selected_question is None:
@@ -115,8 +116,7 @@ def create_app(test_config=None):
     
     
     return jsonify ({
-        'questions' : formatted_questions[start:end] ,
-        'total_plays' : len(formatted_questions),
+        
         'success': True ,
         'deleted' : question_id 
       })
@@ -170,14 +170,13 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-  @app.route('/questions/search', methods=['POST','GET'])
+  @app.route('/questions/search', methods=['POST'])
   def get_searched_questions():
     page = request.args.get('page', 1, type=int)
     start = (page -1) * 10 
     end = start + 10 
-    #search_term = request.form.get('search_term', ' which ') to search for questions containg word which
-    search_term = request.json.get('search_term', ' ')
-    searched_question = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
+    search_term = request.form.get('search_term', '')
+    searched_question=Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
     formatted_questions = [question.format() for question in searched_question]
     
 
@@ -187,7 +186,9 @@ def create_app(test_config=None):
     
     return jsonify ({
         'questions' : formatted_questions[start:end] ,
-        'total_questions' : len(formatted_questions)
+        'total_questions' : len(formatted_questions) ,
+        'sucess' : True 
+       
         
         
       })
@@ -236,27 +237,42 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
-  @app.route('/quizzes', methods=['GET'])
-  def play_quizzes():
-    try: 
-       category = request.get_json()['quiz_cat']['id']
-       if not category:
-        abort(400)
-        category = int(category) 
-        if category == 0:
-          questions = get_questions().get_json()
+ 
+
+  @app.route('/quizzes', methods=['POST'])
+  def play_quiz():
+        body = request.get_json()
+        category = body.get('quiz_category', None).get('id')
+        previous_questions = body.get('previous_questions', None)
+        # handling any category or a specific category
+        if category == 0:  # i.e. All
+            question_bank = Question.query.all()
         else:
-          questions = get_specific_category(category_id).get_json()
-        previous_questions = request.get_json()['previous_questions']
-        return jsonify({
-          'success': True,
-          'question': questions['questions'[len(previous_questions)]],
-          'categories': questions['categories']
-          # if len(questions['questions']) > len(previous_questions) else questions['questions'[0]],
-          # 'success': True
-        }), 200 
-    except:
-      abort(400)
+            question_bank = Question.query.filter(Question.category == category).all()
+        # edge case - no questions in selected category
+        if len(question_bank) == 0:
+            return jsonify({
+                'question': None
+            })
+        # main logic with while loop
+        subset = [question.format() for question in question_bank if question.id not in previous_questions]
+        if len(subset) == 0:
+          question = None 
+        else:
+          question = random.choice(subset)
+        try:
+            while len(subset) > len(previous_questions):
+                if question.get(id) not in previous_questions:
+                    return jsonify({
+                        'success': True,
+                        'question': question
+                    }), 200
+            return jsonify({
+                'success': True,
+                'question': question
+            }), 200
+        except:
+            abort(404)
 
   '''
   @TODO: 
