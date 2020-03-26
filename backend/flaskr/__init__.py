@@ -51,7 +51,7 @@ def create_app(test_config=None):
 
     return jsonify({
 
-      'success ': True ,
+      'success': True ,
       #'categories' : formatted_categories[start:end] ,
       'categories' : formatted_categories ,
       'total_categories' : len(formatted_categories)
@@ -86,7 +86,7 @@ def create_app(test_config=None):
 
     return jsonify({
 
-      'success ': True ,
+      'success': True ,
       'questions' : formatted_questions[start:end] ,
       'categories': categories ,
       'total_questions' : len(formatted_questions)
@@ -154,7 +154,7 @@ def create_app(test_config=None):
     
     return jsonify ({
         'questions' : formatted_questions[start:end] ,
-        'total_plays' : len(formatted_questions),
+        'total_questions' : len(formatted_questions),
         'success': True ,
         'created' : question.id 
       })
