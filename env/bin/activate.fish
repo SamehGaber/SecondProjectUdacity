@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/sameh/udacitynano-degree/projects/02_trivia_api/starter/env"
+set -gx VIRTUAL_ENV "/home/sameh/udacitynano-degree/projects/trivia_project/env"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

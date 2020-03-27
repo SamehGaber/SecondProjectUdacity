@@ -45,18 +45,46 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['categories']))
     
     
-    
     #Testing getting all questions
     def test_get_questions(self):
         res = self.client().get('/questions')
         data = json.loads(res.data)
-        if data is None:
-            print('null data')
-        print(data)
         self.assertEqual(res.status_code,200)
         self.assertEqual(data['success'],True)
         self.assertTrue(data['total_questions'])
         self.assertTrue(len(data['questions']))
+
+    '''
+    def test_get_questions_by_category(self):
+        category_id = 1
+        res = self.client().get(f'/categories/{category_id}/questions')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+
+    
+    def test_get_questions_by_category_fail(self):
+        category_id = 0
+        res = self.client().get(f'/categories/{category_id}/questions')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code,400)
+        self.assertEqual(data['success'],False)
+        
+    
+    
+    def test_delete_question(self):
+        questions_id = 1
+        res = self.client().delete(f'/questions/{questions_id}')
+        data =json.loads(res.data)
+        self.assertEqual(res.status_code,200)
+        self.assertEqual(data['success'],True)
+    
+    
+    def test_delete_questions_fail(self):
+        res = self.client().delete('/questions')
+        data =json.loads(res.data)
+        self.assertEqual(res.status_code,405)
+        self.assertEqual(data['success'],False)
+
 
         
        
@@ -73,6 +101,12 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'],True)
         self.assertTrue(data['total_questions'])
         self.assertTrue(len(data['questions']))
+    '''
+    def test_add_question_fail(self):
+        res = self.client().post('/questions')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code,400)
+        self.assertEqual(data['success'],False)
     
 
 

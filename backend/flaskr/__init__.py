@@ -1,9 +1,7 @@
-import os
+import os ,random
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-import random
-
+from flask_cors import CORS 
 from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
@@ -35,12 +33,6 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-  #dummy end point for testing 
-  @app.route("/hello")
-  def get_greeting():
-    return jsonify({'message':'Hello, World!'})
-  
-  
   @app.route('/categories', methods=['GET'])
   def get_categories():
     page = request.args.get('page', 1, type=int)
@@ -50,9 +42,7 @@ def create_app(test_config=None):
     formatted_categories = { category.id:category.type for category in categories }
 
     return jsonify({
-
       'success': True ,
-      #'categories' : formatted_categories[start:end] ,
       'categories' : formatted_categories ,
       'total_categories' : len(formatted_categories)
     })
@@ -85,7 +75,6 @@ def create_app(test_config=None):
     
 
     return jsonify({
-
       'success': True ,
       'questions' : formatted_questions[start:end] ,
       'categories': categories ,
@@ -102,13 +91,9 @@ def create_app(test_config=None):
   '''
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_specific_questions(question_id):
-    # page = request.args.get('page', 1, type=int)
-    # start = (page -1) * 10 
-    # end = start + 10 
     selected_question=Question.query.get(question_id)
     selected_question.delete()
     questions = Question.query.all()
-    # formatted_questions = [question.format() for question in questions]
     
 
     if selected_question is None:
@@ -116,7 +101,6 @@ def create_app(test_config=None):
     
     
     return jsonify ({
-        
         'success': True ,
         'deleted' : question_id 
       })
@@ -214,17 +198,11 @@ def create_app(test_config=None):
 
 
      return jsonify({
-
       'success ': True ,
       'questions' : formatted_questions,
       'current_category' : category_id ,
       'total_questions' : len(formatted_questions)
-      
      })
-  
-
-
-
 
   '''
   @TODO: 

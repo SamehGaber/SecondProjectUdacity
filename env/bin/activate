@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/sameh/udacitynano-degree/projects/02_trivia_api/starter/env"
+VIRTUAL_ENV="/home/sameh/udacitynano-degree/projects/trivia_project/env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
