@@ -188,11 +188,10 @@ def create_app(test_config=None):
 
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_specific_category(category_id):
-    selected_category = Category.query.filter(Category.id == category_id).one_or_none()
-    selected_questions = Question.query.filter(Question.category == category_id)
+    selected_questions = Question.query.filter(Question.category == int(category_id))
     formatted_questions = [question.format() for question in selected_questions]
 
-    if selected_category is None :
+    if category_id is None :
       abort(404)
     else:
 
